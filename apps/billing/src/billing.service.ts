@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export class BillingService {
-  getHello(): string {
-    return 'Hello World!';
+  protected readonly logger = new Logger(BillingService.name);
+  bill(data: any) {
+    this.logger.log('billing...', data);
   }
 }

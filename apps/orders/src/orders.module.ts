@@ -3,9 +3,10 @@ import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
-import { DatabaseModule } from '@app/common';
+import { DatabaseModule, RabbitmqModule } from '@app/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Order } from './entities/order.entity';
+import { BILLING_SERVICE } from './constants/services.constants';
 
 @Module({
   imports: [
@@ -23,6 +24,9 @@ import { Order } from './entities/order.entity';
     }),
     DatabaseModule,
     TypeOrmModule.forFeature([Order]),
+    RabbitmqModule.register({
+      name: BILLING_SERVICE,
+    }),
   ],
   controllers: [OrdersController],
   providers: [OrdersService],
