@@ -21,7 +21,7 @@ export class OrdersService {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.startTransaction();
     try {
-      const order = await this.orderRepository.create(createOrderDto);
+      const order = await this.orderRepository.save(createOrderDto);
       await lastValueFrom(
         this.billingService.emit('order_created', {
           createOrderDto,
