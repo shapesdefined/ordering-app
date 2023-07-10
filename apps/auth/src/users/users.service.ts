@@ -39,11 +39,14 @@ export class UsersService {
 
   async validateUser(email: string, password: string) {
     const user = await this.usersRepository.findOneBy({ email: email });
-    const passwordIsValid = await bcrypt.compare(password, user.password);
-    if (!passwordIsValid) {
-      throw new UnauthorizedException('Credentials are not valid.');
+    if (user) {
+      const passwordIsValid = await bcrypt.compare(password, user.password);
+      if (!passwordIsValid) {
+        throw new UnauthorizedException('Credentials are not valid.');
+      }
+      return user;
     }
-    return user;
+    throw new UnauthorizedException('Credentials are not valid.');
   }
 
   async getUser(id: number) {

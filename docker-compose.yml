@@ -1,34 +1,54 @@
 services:
-#  orders:
-#    build:
-#      context: .
-#      dockerfile: ./apps/orders/Dockerfile
-#      target: development
-#    command: npm run start:dev orders
-#    env_file:
-#      - ./apps/orders/.env
-#    depends_on:
-#      - postgres
-#      - rabbitmq
-#    volumes:
-#      - .:/usr/src/app
-#      - /usr/src/app/node_modules
-#    ports:
-#      - '3000:3000'
-#  billing:
-#    build:
-#      context: .
-#      dockerfile: ./apps/billing/Dockerfile
-#      target: development
-#    command: npm run start:dev billing
-#    env_file:
-#      - ./apps/billing/.env
-#    depends_on:
-#      - postgres
-#      - rabbitmq
-#    volumes:
-#      - .:/usr/src/app
-#      - /usr/src/app/node_modules
+  orders:
+    build:
+      context: .
+      dockerfile: ./apps/orders/Dockerfile
+      target: development
+    command: npm run start:dev orders
+    env_file:
+      - ./apps/orders/.env
+    depends_on:
+      - postgres
+      - rabbitmq
+      - billing
+      - auth
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - '3000:3000'
+    container_name: orders
+  billing:
+    build:
+      context: .
+      dockerfile: ./apps/billing/Dockerfile
+      target: development
+    command: npm run start:dev billing
+    env_file:
+      - ./apps/billing/.env
+    depends_on:
+      - postgres
+      - rabbitmq
+      - auth
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    container_name: billing
+  auth:
+    build:
+      context: .
+      dockerfile: ./apps/auth/Dockerfile
+      target: development
+    command: npm run start:dev auth
+    env_file:
+      - ./apps/auth/.env
+    depends_on:
+      - postgres
+      - rabbitmq
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    container_name: auth
   postgres:
     image: postgres
     restart: unless-stopped
@@ -40,10 +60,12 @@ services:
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
     volumes:
       - postgres:/var/lib/postgresql/data
+    container_name: postgres
   rabbitmq:
     image: rabbitmq
     ports:
       - '5672:5672'
+    container_name: rabbitmq
 volumes:
   postgres:
     driver: local

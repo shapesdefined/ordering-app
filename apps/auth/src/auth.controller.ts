@@ -10,7 +10,6 @@ import { User } from './users/entities/user.entity';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(
@@ -20,7 +19,6 @@ export class AuthController {
     await this.authService.login(user, response);
     response.send(user);
   }
-
   @UseGuards(JwtAuthGuard)
   @MessagePattern('validate_user')
   async validateUser(@CurrentUser() user: User) {

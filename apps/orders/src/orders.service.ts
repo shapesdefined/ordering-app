@@ -17,7 +17,10 @@ export class OrdersService {
     private readonly billingService: ClientProxy,
     private readonly dataSource: DataSource,
   ) {}
-  async create(createOrderDto: CreateOrderDto): Promise<Order> {
+  async create(
+    createOrderDto: CreateOrderDto,
+    authentication: string,
+  ): Promise<Order> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.startTransaction();
     try {
@@ -25,6 +28,7 @@ export class OrdersService {
       await lastValueFrom(
         this.billingService.emit('order_created', {
           createOrderDto,
+          Authentication: authentication,
         }),
       );
       await queryRunner.commitTransaction();
