@@ -9,6 +9,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ElasticsearchModule } from '@nestjs/elasticsearch';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         DATABASE_PORT: Joi.number().required(),
         DATABASE_HOST: Joi.string().required(),
         NODE_PORT: Joi.number().required(),
+        ELASTIC_SEARCH_NODE: Joi.string().required(),
       }),
       envFilePath: './apps/auth/.env',
     }),
@@ -49,6 +51,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         synchronize: true,
       }),
       inject: [ConfigService],
+    }),
+    ElasticsearchModule.register({
+      node: 'http://localhost:9200', // Elasticsearch server URL
     }),
   ],
   controllers: [AuthController],

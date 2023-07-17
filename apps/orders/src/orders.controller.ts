@@ -5,10 +5,14 @@ import { Order } from './entities/order.entity';
 import { JwtAuthGuard } from '@app/common';
 import { CurrentUser } from '../../auth/src/current-user.decorator';
 import { User } from '../../auth/src/users/entities/user.entity';
+import { ElasticsearchService } from '@nestjs/elasticsearch';
 
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(
+    private readonly ordersService: OrdersService,
+    private readonly elasticsearchService: ElasticsearchService,
+  ) {}
   @Post()
   @UseGuards(JwtAuthGuard)
   async create(
@@ -26,5 +30,18 @@ export class OrdersController {
   @UseGuards(JwtAuthGuard)
   async findAll(): Promise<Order[]> {
     return this.ordersService.findAll();
+  }
+
+  @Get('search')
+  async search(): Promise<any> {
+    const { body } = await this.elasticsearchService.search({
+      index: 'users_index',
+      body: {
+        query: {
+          match_all: {}, // Retrieve all users
+        },
+      },
+    });
+    return body.hits.hits.map((hit) => hit._source);
   }
 }

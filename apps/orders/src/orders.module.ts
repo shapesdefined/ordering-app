@@ -7,6 +7,7 @@ import { AuthModule, RabbitmqModule } from '@app/common';
 import { BILLING_SERVICE } from './constants/services.constants';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Order } from './entities/order.entity';
+import { ElasticsearchModule } from '@nestjs/elasticsearch';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { Order } from './entities/order.entity';
         DATABASE_PORT: Joi.number().required(),
         DATABASE_HOST: Joi.string().required(),
         NODE_PORT: Joi.number().required(),
+        ELASTIC_SEARCH_NODE: Joi.string().required(),
       }),
       envFilePath: './apps/orders/.env',
     }),
@@ -39,6 +41,9 @@ import { Order } from './entities/order.entity';
       inject: [ConfigService],
     }),
     TypeOrmModule.forFeature([Order]),
+    ElasticsearchModule.register({
+      node: 'http://localhost:9200', // Elasticsearch server URL
+    }),
     AuthModule,
   ],
   controllers: [OrdersController],

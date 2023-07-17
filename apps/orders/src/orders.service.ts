@@ -7,6 +7,7 @@ import { BILLING_SERVICE } from './constants/services.constants';
 import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { User } from '../../auth/src/users/entities/user.entity';
+import { ElasticsearchService } from '@nestjs/elasticsearch';
 
 @Injectable()
 export class OrdersService {
@@ -17,6 +18,7 @@ export class OrdersService {
     @Inject(BILLING_SERVICE)
     private readonly billingService: ClientProxy,
     private readonly dataSource: DataSource,
+    private readonly elasticsearchService: ElasticsearchService,
   ) {}
   async create(
     createOrderDto: CreateOrderDto,
@@ -35,6 +37,11 @@ export class OrdersService {
         }),
       );
       await queryRunner.commitTransaction();
+      // Index the order document in Elasticsearch
+      await this.elasticsearchService.index({
+        index: 'orders_index',
+        body: order,
+      });
       return order;
     } catch (err) {
       await queryRunner.rollbackTransaction();

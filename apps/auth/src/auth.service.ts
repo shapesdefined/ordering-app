@@ -3,6 +3,9 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { User } from './users/entities/user.entity';
+import { CreateUserDto } from './users/dto/create-user.dto';
+import { ElasticsearchService } from '@nestjs/elasticsearch';
+import { UsersService } from './users/users.service';
 
 export interface TokenPayload {
   userId: string;
@@ -13,6 +16,8 @@ export class AuthService {
   constructor(
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly elasticsearchService: ElasticsearchService,
+    private readonly usersService: UsersService,
   ) {}
 
   async login(user: User, response: Response) {
@@ -31,6 +36,15 @@ export class AuthService {
       httpOnly: true,
       expires,
     });
+  }
+
+  async signup(createUserDto: CreateUserDto) {
+    const user = await this.usersService.createUser(createUserDto);
+    await this.elasticsearchService.index({
+      index: 'users_index',
+      body: createUserDto,
+    });
+    return user;
   }
 
   logout(response: Response) {

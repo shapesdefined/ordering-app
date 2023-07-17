@@ -14,6 +14,7 @@ services:
 #      - billing
 #      - auth
 #      - rabbitmq
+#      - elasticsearch
 #    volumes:
 #      - .:/usr/src/app
 #      - /usr/src/app/node_modules
@@ -34,6 +35,7 @@ services:
 #      - postgres
 #      - rabbitmq
 #      - auth
+#      - elasticsearch
 #    volumes:
 #      - .:/usr/src/app
 #      - /usr/src/app/node_modules
@@ -51,6 +53,7 @@ services:
 #    depends_on:
 #      - postgres
 #      - rabbitmq
+#      - elasticsearch
 #    volumes:
 #      - .:/usr/src/app
 #      - /usr/src/app/node_modules
@@ -79,8 +82,24 @@ services:
     networks:
       - app-network
     container_name: rabbitmq
+  elasticsearch:
+    image: elasticsearch:8.5.2
+    container_name: elasticsearch
+    environment:
+      - node.name=${ELASTICSEARCH_NODE_NAME}
+      - cluster.name=${ELASTICSEARCH_CLUSTER_NAME}
+      - discovery.type=${ELASTICSEARCH_DISCOVERY_TYPE}
+      - xpack.security.enabled=false
+    ports:
+      - '9200:9200'
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    networks:
+      - app-network
 volumes:
   postgres:
+    driver: local
+  esdata:
     driver: local
 networks:
   app-network:
