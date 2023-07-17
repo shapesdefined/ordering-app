@@ -42,7 +42,7 @@ import { ElasticsearchModule } from '@nestjs/elasticsearch';
     }),
     TypeOrmModule.forFeature([Order]),
     ElasticsearchModule.register({
-      node: 'http://localhost:9200', // Elasticsearch server URL
+      node: 'http://elasticsearch:9200', // Elasticsearch server URL
     }),
     AuthModule,
   ],

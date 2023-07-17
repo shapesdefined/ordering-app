@@ -53,7 +53,7 @@ import { ElasticsearchModule } from '@nestjs/elasticsearch';
       inject: [ConfigService],
     }),
     ElasticsearchModule.register({
-      node: 'http://localhost:9200', // Elasticsearch server URL
+      node: 'http://elasticsearch:9200', // Elasticsearch server URL
     }),
   ],
   controllers: [AuthController],

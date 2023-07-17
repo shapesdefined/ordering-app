@@ -40,9 +40,11 @@ export class AuthService {
 
   async signup(createUserDto: CreateUserDto) {
     const user = await this.usersService.createUser(createUserDto);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userData } = user;
     await this.elasticsearchService.index({
       index: 'users_index',
-      body: createUserDto,
+      body: userData,
     });
     return user;
   }
