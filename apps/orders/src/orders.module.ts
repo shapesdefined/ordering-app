@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
-import { AuthModule, DatabaseModule, RabbitmqModule } from '@app/common';
+import { AuthModule, RabbitmqModule } from '@app/common';
+import { BILLING_SERVICE } from './constants/services.constants';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Order } from './entities/order.entity';
-import { BILLING_SERVICE } from './constants/services.constants';
 
 @Module({
   imports: [
@@ -22,11 +22,23 @@ import { BILLING_SERVICE } from './constants/services.constants';
       }),
       envFilePath: './apps/orders/.env',
     }),
-    DatabaseModule,
-    TypeOrmModule.forFeature([Order]),
     RabbitmqModule.register({
       name: BILLING_SERVICE,
     }),
+    TypeOrmModule.forRootAsync({
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get('DATABASE_HOST'),
+        port: +configService.get('DATABASE_PORT'),
+        username: configService.get('DATABASE_USER'),
+        password: configService.get('DATABASE_PASSWORD'),
+        database: configService.get('DATABASE_NAME'),
+        autoLoadEntities: true,
+        synchronize: true,
+      }),
+      inject: [ConfigService],
+    }),
+    TypeOrmModule.forFeature([Order]),
     AuthModule,
   ],
   controllers: [OrdersController],

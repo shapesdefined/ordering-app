@@ -10,4 +10,6 @@ export class Order {
   price: number;
   @Column()
   phone_number: string;
+  @Column()
+  userId: number;
 }

@@ -6,6 +6,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { BILLING_SERVICE } from './constants/services.constants';
 import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
+import { User } from '../../auth/src/users/entities/user.entity';
 
 @Injectable()
 export class OrdersService {
@@ -20,10 +21,12 @@ export class OrdersService {
   async create(
     createOrderDto: CreateOrderDto,
     authentication: string,
+    user: User,
   ): Promise<Order> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.startTransaction();
     try {
+      createOrderDto.userId = user.id;
       const order = await this.orderRepository.save(createOrderDto);
       await lastValueFrom(
         this.billingService.emit('order_created', {
